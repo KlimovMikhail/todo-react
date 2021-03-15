@@ -6,14 +6,20 @@ import { allTodos } from "./mocks/mocks";
 import { TodoList } from "./TodoList/TodoList";
 import { TodoForm } from "./Todoform/TodoForm";
 import { newItemTodo, removeTodo, getFilteredTodos } from "./Utils/todoUtils";
-import { MyInput } from "./Input";
 
 function App() {
   const [todos, setTodos] = useState(allTodos);
-  const [InputValue, setInputValue] = useState("");
-  const [filteredTodos, setFilteredTodos] = useState([]);
   const [todoInWork, setTodosInWork] = useState([]);
   const [todoIsDone, setTodoIsDone] = useState([]);
+
+  const [InputValueAll, setInputValueAll] = useState("");
+  const [InputValueInWork, setInputValueInWork] = useState("");
+  const [InputValueIsDone, setInputValueIsDone] = useState("");
+
+  const [filteredTodosAll, setFilteredTodosAll] = useState([]);
+  const [filteredTodosInWork, setFilteredTodosInWork] = useState([]);
+  const [filteredTodosIsDone, setFilteredTodosIsDone] = useState([]);
+
   let [isShowFormTodo, setIsShowFormTodo] = useState(false);
 
   const onAddTodo = () => {
@@ -42,18 +48,24 @@ function App() {
 
   const onInputChangeAll = (e) => {
     const { value } = e.target;
-    setInputValue(value);
-    setFilteredTodos(getFilteredTodos(value, todos));
+    setInputValueAll(value);
+    setFilteredTodosAll(getFilteredTodos(value, todos));
   };
 
-  const onInputWorkChange = (e) => {
+  const onInputChangeWork = (e) => {
     const { value } = e.target;
-    setInputValue(value);
-    setFilteredTodos(getFilteredTodos(value, todoInWork));
+    setInputValueInWork(value);
+    setFilteredTodosInWork(getFilteredTodos(value, todoInWork));
+  };
+
+  const onInputChangeDone = (e) => {
+    const { value } = e.target;
+    setInputValueIsDone(value);
+    setFilteredTodosIsDone(getFilteredTodos(value, todoIsDone));
   };
 
   const onChangeWorkStatus = (id) => {
-    allTodos.map((elem) => {
+    todos.map((elem) => {
       if (id === elem.id) {
         elem.workStatus = !elem.workStatus;
       }
@@ -61,33 +73,63 @@ function App() {
     });
   };
 
-  const onChangeWorkStatusDone = (id) => {
-    allTodos.map((elem) => {
+  const onChangeStatusIsDone = (id) => {
+    todoInWork.map((elem) => {
       if (id === elem.id) {
         elem.isDone = !elem.isDone;
-        if (elem.workStatus) {
-          elem.workStatus = !elem.workStatus;
-        }
+      }
+      return elem;
+    });
+    todoIsDone.map((elem) => {
+      if (id === elem.id) {
+        elem.isDone = !elem.isDone;
       }
       return elem;
     });
   };
 
   const onSaveChanges = () => {
-    const arrayInWork = todos.filter(
-      (el) => el.workStatus && el.isDone === false
-    );
-    setTodosInWork(arrayInWork);
-
-    const arrayInPending = allTodos.filter(
+    const arrayInPending = todos.filter(
       (el) => !el.workStatus && el.isDone === false
     );
     setTodos(arrayInPending);
 
-    const arrayIsDone = allTodos.filter(
-      (el) => el.isDone && el.workStatus === false
+    const arrayInWork = todos.reduce((acc, item) => {
+      if (item.workStatus && !item.isDone) {
+        acc.push(item);
+      }
+      return acc;
+    }, todoInWork);
+    setTodosInWork(arrayInWork);
+  };
+
+  const onSaveChangesInWork = () => {
+    const arrayInPending = todoInWork.filter(
+      (el) => el.workStatus === true && el.isDone === false
     );
+    setTodosInWork(arrayInPending);
+    const arrayIsDone = todoInWork.reduce((acc, item) => {
+      console.log("isdone", todoIsDone);
+      if (item.isDone) {
+        acc.push(item);
+      }
+      return acc;
+    }, todoIsDone);
     setTodoIsDone(arrayIsDone);
+  };
+
+  const onSaveChangesIsDone = () => {
+    const arrayInPending = todoIsDone.filter(
+      (el) => el.isDone === true
+    );
+    setTodoIsDone(arrayInPending);
+    const arrayInWork = todoIsDone.reduce((acc, item) => {
+      if (item.workStatus && !item.isDone) {
+        acc.push(item);
+      }
+      return acc;
+    }, todoInWork);
+    setTodosInWork(arrayInWork);
   };
 
   console.log("pending", todos);
@@ -115,39 +157,50 @@ function App() {
               <Input
                 className="TodoFilter"
                 placeholder="find todo"
-                value={InputValue}
+                value={InputValueAll}
                 onChange={onInputChangeAll}
               />
               <TodoList
                 onSaveChanges={onSaveChanges}
                 onChangeWorkStatus={onChangeWorkStatus}
-                onChangeWorkStatusDone={onChangeWorkStatusDone}
                 onDeleteTodo={onDeleteTodo}
-                todos={filteredTodos.length ? filteredTodos : todos}
+                todos={filteredTodosAll.length ? filteredTodosAll : todos}
               />
             </Col>
 
             <Col span={8}>
               <h2>todos in work</h2>
-              <MyInput value={InputValue} onInputChange={onInputWorkChange} />
-              <TodoList
-                onSaveChanges={onSaveChanges}
+              <Input
+                className="TodoFilter"
+                placeholder="find todo"
+                value={InputValueInWork}
+                onChange={onInputChangeWork}
+              />              <TodoList
+                onSaveChanges={onSaveChangesInWork}
                 onChangeWorkStatus={onChangeWorkStatus}
-                onChangeWorkStatusDone={onChangeWorkStatusDone}
+                onChangeWorkStatusDone={onChangeStatusIsDone}
                 onDeleteTodo={onDeleteTodoinWork}
-                todos={filteredTodos.length ? filteredTodos : todoInWork}
+                todos={
+                  filteredTodosInWork.length ? filteredTodosInWork : todoInWork
+                }
               />
             </Col>
 
             <Col span={8}>
               <h2>done</h2>
-              <Input placeholder="Basic usage" />
+              <Input
+                className="TodoFilter"
+                placeholder="find todo"
+                value={InputValueIsDone}
+                onChange={onInputChangeDone}
+              />
               <TodoList
-                onSaveChanges={onSaveChanges}
-                onChangeWorkStatus={onChangeWorkStatus}
-                onChangeWorkStatusDone={onChangeWorkStatusDone}
+                onSaveChanges={onSaveChangesIsDone}
+                onChangeWorkStatusDone={onChangeStatusIsDone}
                 onDeleteTodo={onDeleteTodoIsDone}
-                todos={filteredTodos.length ? filteredTodos : todoIsDone}
+                todos={
+                  filteredTodosIsDone.length ? filteredTodosIsDone : todoIsDone
+                }
               />
             </Col>
           </Row>

@@ -17,7 +17,7 @@ export const removeTodo = (id, todos) => {
 
 export const getFilteredTodos = (InputValue, todos) => {
   return todos.reduce((acc, item) => {
-    if(InputValue && item.title.toLowerCase().split('').includes(InputValue.toLowerCase())) {
+    if(InputValue && item.title.toLowerCase().split(' ').includes(InputValue.toLowerCase())) {
       acc.push(item)
     }
     return acc
