@@ -1,0 +1,53 @@
+.TodoForm {
+  position: fixed;
+  background: rgb(51, 38, 38);
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.TodoFormInput {
+  width: 40%;
+  height: 20px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.TodoFormTextarea {
+  width: 40%;
+  height: 200px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.DataPicker {
+  width: 40%;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 40%;
+  margin: 0 auto;
+}
+
+.btn-add {
+  width: 45%;
+  background: rgb(93, 240, 64);
+}
+
+.btn-quit {
+  width: 45%;
+  background: rgb(231, 115, 115);
+}
+
+.form-greet {
+  color: rgb(46, 34, 207);
+}

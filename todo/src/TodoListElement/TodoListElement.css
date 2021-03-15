@@ -1,0 +1,16 @@
+.btn-delete {
+  background: rgb(240, 75, 75);
+  color: rgb(235, 166, 102);
+}
+
+.btn-in-work {
+  background: rgb(82, 211, 65);
+  color: rgb(58, 40, 24);
+}
+
+.card-todo {
+  border: 2px solid rgb(25, 25, 143);
+  border-radius: 5px;
+  margin: 10px 0;
+  background-color: rgb(229, 240, 84);
+}
