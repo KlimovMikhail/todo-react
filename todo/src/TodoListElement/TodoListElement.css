@@ -17,6 +17,10 @@
   background-color: rgb(229, 240, 84);
 }
 
+.card-todo:hover {
+  box-shadow: 4px 5px 5px 5px rgba(33, 109, 231, 0.2);
+}
+
 .buttonOnchange {
   display: flex;
   justify-content: space-between;

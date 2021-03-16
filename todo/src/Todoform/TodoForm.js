@@ -15,6 +15,7 @@ export const TodoForm = ({ onSaveTodo, onAddTodo }) => {
   function onChangeDate(date, dateString) {
     setInputChange({ ...inputChange, deadline: dateString });
   }
+
   const onInputChange = ({ target }) => {
     setInputChange({
       ...inputChange,
@@ -51,7 +52,7 @@ export const TodoForm = ({ onSaveTodo, onAddTodo }) => {
         placeholder="deadline"
         onChange={onChangeDate}
       />
-      <div className='buttons' >
+      <div className="buttons">
         <Button onClick={onFormSubmit} className="btn-add" type="primary">
           Save
         </Button>

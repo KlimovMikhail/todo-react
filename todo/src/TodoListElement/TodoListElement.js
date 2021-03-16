@@ -1,8 +1,17 @@
-import { Button, Card } from "antd";
+import { Button, Card, DatePicker } from "antd";
 import React, { useState } from "react";
 import "./TodoListElement.css";
 
 export const TodoListElement = (props) => {
+  const [inputChange, setInputChange] = useState({
+    isEditing: false,
+    title: "",
+    description: "",
+    deadline: null,
+  });
+
+  let [isShowStatus, setIsShowStatus] = useState(false);
+
   const {
     todo,
     onDeleteTodo,
@@ -11,8 +20,6 @@ export const TodoListElement = (props) => {
     onSaveChanges,
   } = props;
   const { title, description, deadline, id, workStatus, isDone } = todo;
-
-  let [isShowStatus, setIsShowStatus] = useState(false);
 
   const deleteTodo = () => {
     onDeleteTodo(id);
@@ -27,18 +34,64 @@ export const TodoListElement = (props) => {
   };
 
   const saveChanges = () => {
-    onSaveChanges();
+    onSaveChanges(inputChange, id);
+    setInputChange({
+      ...inputChange,
+      isEditing: false,
+    });
     setIsShowStatus(!isShowStatus);
   };
 
   const onEdit = () => {
+    setInputChange({
+      isEditing: true,
+      title: title,
+      description: description,
+      deadline: deadline,
+    });
     setIsShowStatus(!isShowStatus);
   };
 
+  const onInputChange = ({ target }) => {
+    setInputChange({
+      ...inputChange,
+      [target.name]: target.value,
+    });
+  };
+
+  function onChangeDate(date, dateString) {
+    setInputChange({ ...inputChange, deadline: dateString });
+  }
+
+  const InputTitle = (
+    <input onChange={onInputChange} name="title" defaultValue={title} />
+  );
+
+  const InputDescription = (
+    <textarea
+      name="description"
+      defaultValue={description}
+      onChange={onInputChange}
+    />
+  );
+
+  const InputDate = (
+    <DatePicker className="DataPicker" onChange={onChangeDate} />
+  );
+
   return (
-    <Card className="card-todo" title={title} bordered={true}>
-      <div className="card-description">{description}</div>
-      <div>deadline: {deadline}</div>
+    <Card
+      className="card-todo"
+      title={inputChange.isEditing ? InputTitle : title}
+      bordered={true}
+    >
+      {inputChange.isEditing ? (
+        InputDescription
+      ) : (
+        <div className="card-description">{description}</div>
+      )}
+
+      {inputChange.isEditing ? InputDate : <div>deadline: {deadline}</div>}
 
       {isShowStatus ? (
         <>
@@ -63,19 +116,23 @@ export const TodoListElement = (props) => {
             </div>
           ) : null}
 
-          <div className='buttonOnchange' >
-            <Button onClick={deleteTodo} className="btn-delete">
-              Delete task
-            </Button>
+          <div>
             <Button onClick={saveChanges} className="btn-save">
               Save
             </Button>
           </div>
         </>
       ) : (
-        <Button onClick={onEdit} className="btn-edit">
-          Options
-        </Button>
+        <>
+          <div className="buttonOnchange">
+            <Button onClick={onEdit} className="btn-edit">
+              Edit
+            </Button>
+            <Button onClick={deleteTodo} className="btn-delete">
+              Delete task
+            </Button>
+          </div>
+        </>
       )}
     </Card>
   );

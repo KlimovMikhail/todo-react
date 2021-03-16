@@ -2,13 +2,14 @@ import React from "react";
 import { TodoListElement } from "../TodoListElement/TodoListElement";
 
 export const TodoList = (props) => {
-  const { 
-    todos, 
-    onDeleteTodo, 
-    onChangeWorkStatus, 
+  const {
+    todos,
+    onDeleteTodo,
+    onChangeWorkStatus,
     onSaveChanges,
-    onChangeWorkStatusDone
-  } = props
+    onChangeWorkStatusDone,
+  } = props;
+
   return todos.map((elem) => {
     return (
       <TodoListElement
@@ -18,7 +19,6 @@ export const TodoList = (props) => {
         onChangeWorkStatus={onChangeWorkStatus}
         onChangeWorkStatusDone={onChangeWorkStatusDone}
         onSaveChanges={onSaveChanges}
-
       />
     );
   });

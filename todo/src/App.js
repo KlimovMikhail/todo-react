@@ -1,11 +1,19 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Row, Col, Input, Button } from "antd";
 import "antd/dist/antd.css";
 import "./assests/styles.css";
+
 import { allTodos } from "./mocks/mocks";
 import { TodoList } from "./TodoList/TodoList";
 import { TodoForm } from "./Todoform/TodoForm";
-import { newItemTodo, removeTodo, getFilteredTodos } from "./Utils/todoUtils";
+import {
+  newItemTodo,
+  removeTodo,
+  getFilteredTodos,
+  changeTodo,
+  changeWorkStatus,
+  changeStatusIsDone,
+} from "./Utils/todoUtils";
 
 function App() {
   const [todos, setTodos] = useState(allTodos);
@@ -26,116 +34,136 @@ function App() {
     setIsShowFormTodo((isShowFormTodo = !isShowFormTodo));
   };
 
-  const onDeleteTodo = (id) => {
-    const newArray = removeTodo(id, todos);
-    setTodos(newArray);
-  };
+  const onDeleteTodo = useCallback(
+    (id) => {
+      const newArray = removeTodo(id, todos);
+      setTodos(newArray);
+    },
+    [todos]
+  );
 
-  const onDeleteTodoinWork = (id) => {
-    const newArray = removeTodo(id, todoInWork);
-    setTodosInWork(newArray);
-  };
+  const onDeleteTodoinWork = useCallback(
+    (id) => {
+      const newArray = removeTodo(id, todoInWork);
+      setTodosInWork(newArray);
+    },
+    [todoInWork]
+  );
 
-  const onDeleteTodoIsDone = (id) => {
-    const newArray = removeTodo(id, todoIsDone);
-    setTodoIsDone(newArray);
-  };
+  const onDeleteTodoIsDone = useCallback(
+    (id) => {
+      const newArray = removeTodo(id, todoIsDone);
+      setTodoIsDone(newArray);
+    },
+    [todoIsDone]
+  );
 
-  const onSaveTodo = (newTodo) => {
-    const newArrayOfTodos = newItemTodo(newTodo, todos);
-    setTodos(newArrayOfTodos);
-  };
+  const onSaveTodo = useCallback(
+    (newTodo) => {
+      const newArrayOfTodos = newItemTodo(newTodo, todos);
+      setTodos(newArrayOfTodos);
+    },
+    [todos]
+  );
 
-  const onInputChangeAll = (e) => {
-    const { value } = e.target;
-    setInputValueAll(value);
-    setFilteredTodosAll(getFilteredTodos(value, todos));
-  };
+  const onInputChangeAll = useCallback(
+    (e) => {
+      const { value } = e.target;
+      setInputValueAll(value);
+      setFilteredTodosAll(getFilteredTodos(value, todos));
+    },
+    [todos]
+  );
 
-  const onInputChangeWork = (e) => {
-    const { value } = e.target;
-    setInputValueInWork(value);
-    setFilteredTodosInWork(getFilteredTodos(value, todoInWork));
-  };
+  const onInputChangeWork = useCallback(
+    (e) => {
+      const { value } = e.target;
+      setInputValueInWork(value);
+      setFilteredTodosInWork(getFilteredTodos(value, todoInWork));
+    },
+    [todoInWork]
+  );
 
-  const onInputChangeDone = (e) => {
-    const { value } = e.target;
-    setInputValueIsDone(value);
-    setFilteredTodosIsDone(getFilteredTodos(value, todoIsDone));
-  };
+  const onInputChangeDone = useCallback(
+    (e) => {
+      const { value } = e.target;
+      setInputValueIsDone(value);
+      setFilteredTodosIsDone(getFilteredTodos(value, todoIsDone));
+    },
+    [todoIsDone]
+  );
 
-  const onChangeWorkStatus = (id) => {
-    todos.map((elem) => {
-      if (id === elem.id) {
-        elem.workStatus = !elem.workStatus;
-      }
-      return elem;
-    });
-  };
+  const onChangeWorkStatus = useCallback(
+    (id) => {
+      changeWorkStatus(todos, id);
+    },
+    [todos]
+  );
 
-  const onChangeStatusIsDone = (id) => {
-    todoInWork.map((elem) => {
-      if (id === elem.id) {
-        elem.isDone = !elem.isDone;
-      }
-      return elem;
-    });
-    todoIsDone.map((elem) => {
-      if (id === elem.id) {
-        elem.isDone = !elem.isDone;
-      }
-      return elem;
-    });
-  };
+  const onChangeStatusIsDone = useCallback(
+    (id) => {
+      changeStatusIsDone(todoInWork, id);
+      changeStatusIsDone(todoIsDone, id);
+    },
+    [todoInWork, todoIsDone]
+  );
 
-  const onSaveChanges = () => {
-    const arrayInPending = todos.filter(
-      (el) => !el.workStatus && el.isDone === false
-    );
-    setTodos(arrayInPending);
+  const onSaveChanges = useCallback(
+    (changedElement, id) => {
+      const arrayWithNewElement = changeTodo(todos, changedElement, id);
+      const arrayInPending = arrayWithNewElement.filter(
+        (el) => !el.workStatus && el.isDone === false
+      );
+      setTodos(arrayInPending);
 
-    const arrayInWork = todos.reduce((acc, item) => {
-      if (item.workStatus && !item.isDone) {
-        acc.push(item);
-      }
-      return acc;
-    }, todoInWork);
-    setTodosInWork(arrayInWork);
-  };
+      const arrayInWork = arrayWithNewElement.reduce((acc, item) => {
+        if (item.workStatus && !item.isDone) {
+          acc.push(item);
+        }
+        return acc;
+      }, todoInWork);
+      setTodosInWork(arrayInWork);
+    },
+    [todos, todoInWork]
+  );
 
-  const onSaveChangesInWork = () => {
-    const arrayInPending = todoInWork.filter(
-      (el) => el.workStatus === true && el.isDone === false
-    );
-    setTodosInWork(arrayInPending);
-    const arrayIsDone = todoInWork.reduce((acc, item) => {
-      console.log("isdone", todoIsDone);
-      if (item.isDone) {
-        acc.push(item);
-      }
-      return acc;
-    }, todoIsDone);
-    setTodoIsDone(arrayIsDone);
-  };
+  const onSaveChangesInWork = useCallback(
+    (changedElement, id) => {
+      const arrayWithNewElement = changeTodo(todoInWork, changedElement, id);
 
-  const onSaveChangesIsDone = () => {
-    const arrayInPending = todoIsDone.filter(
-      (el) => el.isDone === true
-    );
-    setTodoIsDone(arrayInPending);
-    const arrayInWork = todoIsDone.reduce((acc, item) => {
-      if (item.workStatus && !item.isDone) {
-        acc.push(item);
-      }
-      return acc;
-    }, todoInWork);
-    setTodosInWork(arrayInWork);
-  };
+      const arrayInPending = arrayWithNewElement.filter(
+        (el) => el.workStatus === true && el.isDone === false
+      );
+      setTodosInWork(arrayInPending);
+      const arrayIsDone = arrayWithNewElement.reduce((acc, item) => {
+        if (item.isDone) {
+          acc.push(item);
+        }
+        return acc;
+      }, todoIsDone);
+      setTodoIsDone(arrayIsDone);
+    },
+    [todoInWork, todoIsDone]
+  );
 
-  console.log("pending", todos);
-  console.log("work", todoInWork);
-  console.log("done", todoIsDone);
-  console.log("all", allTodos);
+  const onSaveChangesIsDone = useCallback(
+    (changedElement, id) => {
+      const arrayWithNewElement = changeTodo(todoIsDone, changedElement, id);
+
+      const arrayInPending = arrayWithNewElement.filter(
+        (el) => el.isDone === true
+      );
+      setTodoIsDone(arrayInPending);
+      const arrayInWork = arrayWithNewElement.reduce((acc, item) => {
+        if (item.workStatus && !item.isDone) {
+          acc.push(item);
+        }
+        return acc;
+      }, todoInWork);
+      setTodosInWork(arrayInWork);
+    },
+    [todoIsDone, todoInWork]
+  );
 
   return (
     <>
@@ -143,7 +171,7 @@ function App() {
         {isShowFormTodo ? (
           <TodoForm onSaveTodo={onSaveTodo} onAddTodo={onAddTodo} />
         ) : null}
-        <h1>Todos process</h1>
+        <h1>Todos progress</h1>
 
         <div className="site-card-wrapper">
           <Row gutter={16}>
@@ -160,12 +188,14 @@ function App() {
                 value={InputValueAll}
                 onChange={onInputChangeAll}
               />
-              <TodoList
-                onSaveChanges={onSaveChanges}
-                onChangeWorkStatus={onChangeWorkStatus}
-                onDeleteTodo={onDeleteTodo}
-                todos={filteredTodosAll.length ? filteredTodosAll : todos}
-              />
+              <div className="TodoList">
+                <TodoList
+                  onSaveChanges={onSaveChanges}
+                  onChangeWorkStatus={onChangeWorkStatus}
+                  onDeleteTodo={onDeleteTodo}
+                  todos={filteredTodosAll.length ? filteredTodosAll : todos}
+                />
+              </div>
             </Col>
 
             <Col span={8}>
@@ -175,9 +205,9 @@ function App() {
                 placeholder="find todo"
                 value={InputValueInWork}
                 onChange={onInputChangeWork}
-              />              <TodoList
+              />
+              <TodoList
                 onSaveChanges={onSaveChangesInWork}
-                onChangeWorkStatus={onChangeWorkStatus}
                 onChangeWorkStatusDone={onChangeStatusIsDone}
                 onDeleteTodo={onDeleteTodoinWork}
                 todos={
@@ -194,14 +224,18 @@ function App() {
                 value={InputValueIsDone}
                 onChange={onInputChangeDone}
               />
-              <TodoList
-                onSaveChanges={onSaveChangesIsDone}
-                onChangeWorkStatusDone={onChangeStatusIsDone}
-                onDeleteTodo={onDeleteTodoIsDone}
-                todos={
-                  filteredTodosIsDone.length ? filteredTodosIsDone : todoIsDone
-                }
-              />
+              <div className="TodoList">
+                <TodoList
+                  onSaveChanges={onSaveChangesIsDone}
+                  onChangeWorkStatusDone={onChangeStatusIsDone}
+                  onDeleteTodo={onDeleteTodoIsDone}
+                  todos={
+                    filteredTodosIsDone.length
+                      ? filteredTodosIsDone
+                      : todoIsDone
+                  }
+                />
+              </div>
             </Col>
           </Row>
         </div>
